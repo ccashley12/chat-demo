@@ -1,6 +1,6 @@
 # Meet App
 
-***Meet App** is a mobile chat application built with **React Native** and **Expo**. It provides users with a seamless chat experience where they can send messages, share images, and their location. The app uses **Google Firebase** for real-time data storage and authentication.
+**Meet App** is a mobile chat application built with **React Native** and **Expo**. It provides users with a seamless chat experience where they can send messages, share images, and their location. The app uses **Google Firebase** for real-time data storage and authentication.
 
 ## Features
 
