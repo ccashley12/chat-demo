@@ -1,62 +1,71 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 
 const Start = ({ navigation }) => {
+    // State to store users input name
     const [name, setName] = useState('');
+    // State to store selected background color, with default value
     const [backgroundColor, setBackgroundColor] = useState("");
+    // Colors for users to select for background 
     const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
 
     return (
-        <View style={styles.container}>
-            <ImageBackground
-                source={require('../assets/Background.png')}
-                style={styles.background}
-            >
-                <View style={styles.contentContainer}>
-                    <View style={styles.inputContainer}>
+        <KeyboardAvoidingView
+            style={{ flex:1 }}
+            // Ensures keyboard does not cover text input on device
+             behavior={ Platform.OS === 'ios' ? "padding" : "height" }
+        >
+            <View style={styles.container}>
+                <ImageBackground
+                    source={require('../assets/Background.png')}
+                    style={styles.background}
+                >
+                    <View style={styles.contentContainer}>
+                        <View style={styles.inputContainer}>
 
-                        {/* Name Input */}
-                        <TextInput
-                            style={styles.textInput}
-                            value={name}
-                            onChangeText={setName}
-                            placeholder='Your name'
-                            placeholderTextColor='#757083'
-                        />
+                            {/* Name Input */}
+                            <TextInput
+                                style={styles.textInput}
+                                value={name}
+                                onChangeText={setName}
+                                placeholder='Your name'
+                                placeholderTextColor='#757083'
+                            />
 
-                        {/* Color selection */}
-                        <Text style={styles.colorText}>Choose Background Color:</Text>
-                        <View style={styles.colorContainer}>
-                            {colors.map((color) => (
-                                <TouchableOpacity
-                                    key={color}
-                                    style={[
-                                        styles.colorOption,
-                                        { backgroundColor: color },
-                                        backgroundColor === color && styles.selectedColor,
-                                    ]}
-                                    onPress={() => setBackgroundColor(color)}
-                                />
-                            ))}
+                            {/* Color selection */}
+                            <Text style={styles.colorText}>Choose Background Color:</Text>
+                            <View style={styles.colorContainer}>
+                                {colors.map((color) => (
+                                    <TouchableOpacity
+                                        key={color}
+                                        style={[
+                                            styles.colorOption,
+                                            { backgroundColor: color },
+                                            backgroundColor === color && styles.selectedColor,
+                                        ]}
+                                        onPress={() => setBackgroundColor(color)}
+                                    />
+                                ))}
+                            </View>
+
+                            {/* Start chatting button */}
+                            <TouchableOpacity
+                                style={styles.button}
+                                onPress={() =>
+                                    navigation.navigate("Chat", {
+                                    name: name || "User",
+                                    backgroundColor: backgroundColor,
+                                    })
+                                }
+                            >
+                                <Text style={styles.buttonText}>Start Chatting</Text>
+                            </TouchableOpacity>
                         </View>
-
-                        {/* Start chatting button */}
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={() =>
-                              navigation.navigate("Chat", {
-                                name: name || "User",
-                                backgroundColor: backgroundColor,
-                              })
-                            }
-                        >
-                            <Text style={styles.buttonText}>Start Chatting</Text>
-                        </TouchableOpacity>
                     </View>
-                </View>
-            </ImageBackground>
-            <Text>Hello Screen2!</Text>
-        </View>
+                </ImageBackground>
+                <Text>Hello Screen2!</Text>
+            </View>
+        </KeyboardAvoidingView>
     );
 };
 
