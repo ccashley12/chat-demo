@@ -1,38 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Platform, KeyboardAvoidingView } from "react-native";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import { collection, query, orderBy, onSnapshot, addDoc, where } from 'firebase/firestore';
 
-const Chat = ({ route, navigation }) => {
+const Chat = ({ db, route, navigation }) => {
+    const { userID } = route.params;
+    // Get user ID & background color
     const { name, backgroundColor } = route.params;
+    // State to manage chat messages
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
-        // Set navigation bar title to user's name
-        navigation.setOptions({ title: name })
-        setMessages([
-            {
-                _id: 1,
-                text: "Hello Developer",
-                createdAt: new Date(),
-                user: {
-                    _id: 2,
-                    name: "React Native",
-                    avatar: "https://placeimg.com/140/10/any",
-                },
-            },
-            {
-                _id: 2,
-                text: 'This is a system message',
-                createdAt: new Date(),
-                system: true,
-            },
-        ]);
-    }, []);
+        navigation.setOptions({ title: name });
+        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+        const unsubMessages = onSnapshot(q, (docs) => {
+            let newMessages = [];
+            docs.forEach(doc => {
+                newMessages.push({
+                id: doc.id,
+                ...doc.data(),
+                createdAt: new Date(doc.data().createdAt.toMillis())
+            })
+          })
+          setMessages(newMessages);
+        })
+        //Clean up code
+        return () => {
+          if (unsubMessages) unsubMessages();
+        }
+       }, []);
 
     // Provides GiftedChat with messages from sender and info about them
     const onSend = (newMessages) => {
-        setMessages(previousMessages => GiftedChat.append(previousMessages, newMessages))
-    }
+        addDoc(collection(db, "messages"), newMessages[0])
+      }
 
     // Color for chat bubbles
     const renderBubble = (props) => {
@@ -62,7 +63,7 @@ return (
         />
         {/* Ensures keyboard does not cover text input on devices with Android OS */}
         { Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null }
-        
+
         {/* Ensures keyboard does not cover text input on devices with iOS */}
         { Platform.OS === 'ios' ? <KeyboardAvoidingView behavior="padding" /> : null }
     </View>
