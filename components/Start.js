@@ -1,13 +1,32 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { getAuth, signInAnonymously } from "firebase/auth";
 
 const Start = ({ navigation }) => {
+    //Authentication handler
+    const auth = getAuth();
     // State to store users input name
     const [name, setName] = useState('');
     // State to store selected background color, with default value
     const [backgroundColor, setBackgroundColor] = useState("");
     // Colors for users to select for background 
     const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
+
+    const signInUser = () => {
+        signInAnonymously(auth)
+            .then(result => {
+                navigation.navigate("Chat", {
+                    userID: result.user.uid,
+                    name: name || 'Guest',
+                    backgroundColor: backgroundColor
+                });
+                Alert.alert("Signed in Successfully!");
+            })
+            .catch((error) => {
+                Alert.alert("Unable to sign in, try again.");
+                console.error('Login error:', error);
+            })
+    };
 
     return (
         <KeyboardAvoidingView
@@ -51,19 +70,13 @@ const Start = ({ navigation }) => {
                             {/* Start chatting button */}
                             <TouchableOpacity
                                 style={styles.button}
-                                onPress={() =>
-                                    navigation.navigate("Chat", {
-                                    name: name || "User",
-                                    backgroundColor: backgroundColor,
-                                    })
-                                }
+                                onPress={signInUser}
                             >
                                 <Text style={styles.buttonText}>Start Chatting</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </ImageBackground>
-                <Text>Hello Screen2!</Text>
             </View>
         </KeyboardAvoidingView>
     );
