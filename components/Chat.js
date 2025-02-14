@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Platform, KeyboardAvoidingView } from "react-native";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
-import { collection, query, orderBy, onSnapshot, addDoc, where } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc } from 'firebase/firestore';
 
 const Chat = ({ db, route, navigation }) => {
     const { userID } = route.params;
@@ -57,7 +57,7 @@ return (
             renderBubble={renderBubble}
             onSend={messages => onSend(messages)}
             user={{
-                _id: 1,
+                _id: userID,
                 name
             }}
         />
@@ -72,8 +72,8 @@ return (
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-    },
+        flex: 1
+    }
 });
 
 export default Chat;
