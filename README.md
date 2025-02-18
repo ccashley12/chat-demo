@@ -27,7 +27,6 @@
 
 - **Components**: Reusable UI components for the chat interface, message bubbles, input fields, etc.
 - **Screens**: Individual screens for the app's various views (start screen, chat screen, etc.).
-- **Utils**: Helper functions for common tasks like data formatting and API calls.
 - **Assets**: Images, icons, and other static assets used in the app.
 
 ## Setup Instructions
@@ -65,9 +64,13 @@ If you don't already have the Expo CLI globally, install it using:
 1. Go to the Firebase console.
 2. Create a new Firebase project.
 3. Enable Firestore and Firebase Storage:
-   - In Firestore and Storage, set the rules as follows during development:
+   - In Firestore and Storage, set the rules from 'false' to 'true' as follows during development:
 
-allow read, write: if true;
+            {* existing code *}
+            allow read, write: if true;
+        }
+    }
+}
 
 
 4. Add a web app to your project and copy the config.
