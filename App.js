@@ -13,6 +13,7 @@ const Stack = createNativeStackNavigator();
 //Import Firebase
 import { initializeApp } from 'firebase/app';
 import { getFirestore, disableNetwork, enableNetwork } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 //Import Async Storage
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -38,6 +39,9 @@ const App = () => {
 
   // Initialize Cloud Firestore and get a reference to the service
   const db = getFirestore(app);
+
+  // Initialize Firebase Storage handler
+  const storage = getStorage(app);
 
   //Defines network connectivity status
   const connectionStatus = useNetInfo();
@@ -79,6 +83,7 @@ const App = () => {
             <Chat 
               isConnected={connectionStatus.isConnected} 
               db={db} 
+              storage={storage}
               {...props} />}
         </Stack.Screen>
       </Stack.Navigator>
