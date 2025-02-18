@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Platform, KeyboardAvoidingView } from "react-native";
 import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
-import { collection, query, orderBy, onSnapshot, addDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomActions from './CustomActions';
+import MapView from 'react-native-maps';
 
-const Chat = ({ db, route, navigation, isConnected }) => {
-    const { userID } = route.params;
+const Chat = ({ db, route, navigation, isConnected, storage }) => {
+
     // Get user ID & background color
-    const { name, backgroundColor } = route.params;
+    const { name, userID, backgroundColor } = route.params;
+
     // State to manage chat messages
     const [messages, setMessages] = useState([]);
 
@@ -27,7 +30,7 @@ const Chat = ({ db, route, navigation, isConnected }) => {
                     newMessages.push({
                     id: doc.id,
                     ...doc.data(),
-                    createdAt: new Date(doc.data().createdAt.toMillis())
+                    createdAt: doc.createdAt?.toDate() || new Date()
                 });
             });
             cacheMessages(newMessages);
@@ -54,11 +57,19 @@ const Chat = ({ db, route, navigation, isConnected }) => {
     const loadCachedMessages = async () => {
         const cachedMessages = await AsyncStorage.getItem("messages") || [];
         setMessages(JSON.parse(cachedMessages));
-    }
+    };
 
     // Provides GiftedChat with messages from sender and info about them
     const onSend = (newMessages) => {
-        addDoc(collection(db, "messages"), newMessages[0])
+        const [message] = newMessages;
+        addDoc(collection(db, "messages"), {
+            _id: message._id,
+            text: message.text || "",
+            createdAt: serverTimestamp(),
+            user: message.user,
+            image: message.image || null,
+            location: message.location || null,
+          });
     };
 
     // Color for chat bubbles
@@ -74,13 +85,37 @@ const Chat = ({ db, route, navigation, isConnected }) => {
                 }
             }}
         />
-    }
+    };
 
     //Does not show InputToolbar when offline, not allowing user to send messages when offline
     const renderInputToolbar = (props) => {
         if (isConnected) return <InputToolbar {...props} />;
         else return null;
-    }
+    };
+
+    //Creates the circle button allowing users to take actions in the chat
+    const renderCustomActions  = (props) => {
+        return <CustomActions userID={userID} name={name} storage={storage} onSend={(message) => onSend([message])} {...props} />;
+    };
+
+    //Checks if curerntMessage has location data and returns MapView
+    const renderCustomView = (props) => {
+        const { currentMessage } = props;
+        if (currentMessage.location) {
+            return (
+                <MapView
+                    style={styles.mapView}
+                    region={{
+                        latitude: currentMessage.location.latitude,
+                        longitude: currentMessage.location.longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421
+                    }}
+                />
+            );
+        }
+        return null;
+    };
 
 return (
     <View style={[styles.container, { backgroundColor: backgroundColor || "FFFFFF" }]}>
@@ -88,7 +123,9 @@ return (
             messages={messages}
             renderBubble={renderBubble}
             renderInputToolbar={renderInputToolbar}
-            onSend={messages => onSend(messages)}
+            onSend={(messages) => onSend(messages)}
+            renderActions={renderCustomActions}
+            renderCustomView={renderCustomView}
             user={{
                 _id: userID,
                 name
@@ -106,7 +143,13 @@ return (
 const styles = StyleSheet.create({
     container: {
         flex: 1
-    }
+    },
+    mapView: {
+        width: 150,
+        height: 100,
+        borderRadius: 13,
+        margin: 3,
+    },
 });
 
 export default Chat;
