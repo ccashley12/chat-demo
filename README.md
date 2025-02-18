@@ -68,10 +68,6 @@ If you don't already have the Expo CLI globally, install it using:
 
             {* existing code *}
             allow read, write: if true;
-        }
-    }
-}
-
 
 4. Add a web app to your project and copy the config.
 5. Add the Firebase config to your project in the `firebaseConfig` object in `App.js`:
